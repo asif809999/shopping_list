@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shopping_list/data/categories.dart';
+import 'package:shopping_list/models/category.dart';
 
 class NewItem extends StatefulWidget {
   const NewItem({super.key});
@@ -14,10 +15,20 @@ class _NewItemState extends State<NewItem> {
   final _formKey = GlobalKey<
       FormState>(); /* this GlobalKey ensures, if the build method executes again
    (setting a state may be),the form widget will not rebuild and keeps its internal state */
+  var _enteredName = '';
+  var _enteredQuantity = 1;
+  var _selectedCategory = categories[Categories.vegetables]!;
 
   void _saveItem() {
-    _formKey.currentState!
-        .validate(); // validates all the validator functions inside Widgets;
+    if (_formKey.currentState!.validate()) {
+      // validates all the validator functions inside Widgets;
+      _formKey.currentState!.save();
+    }
+    print(
+      _enteredName,
+    );
+    print(_enteredQuantity);
+    print(_selectedCategory);
   }
 
   @override
@@ -46,31 +57,38 @@ class _NewItemState extends State<NewItem> {
                   }
                   return null;
                 },
+                onSaved: (value) {
+                  _enteredName = value!;
+                },
               ),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Expanded(
                     child: TextFormField(
-                      decoration: const InputDecoration(
-                        label: Text('Qantity'),
-                      ),
-                      keyboardType: TextInputType.number,
-                      initialValue: '1',
-                      validator: (value) {
-                        if (value == null ||
-                            value.isEmpty ||
-                            int.tryParse(value) == null ||
-                            int.tryParse(value)! <= 0) {
-                          return 'Must be a valid, possitive number.';
-                        }
-                        return null;
-                      },
-                    ),
+                        decoration: const InputDecoration(
+                          label: Text('Qantity'),
+                        ),
+                        keyboardType: TextInputType.number,
+                        initialValue: _enteredQuantity.toString(),
+                        validator: (value) {
+                          if (value == null ||
+                              value.isEmpty ||
+                              int.tryParse(value) == null ||
+                              int.tryParse(value)! <= 0) {
+                            return 'Must be a valid, possitive number.';
+                          }
+                          return null;
+                        },
+                        onSaved: (value) {
+                          _enteredQuantity = int.parse(
+                              value!); // if fails to convert, .parse throws an error but .tryParse returns null;
+                        }),
                   ),
                   const SizedBox(width: 8),
                   Expanded(
                     child: DropdownButtonFormField(
+                      value: _selectedCategory,
                       items: [
                         for (final category in categories.entries)
                           DropdownMenuItem(
@@ -88,7 +106,11 @@ class _NewItemState extends State<NewItem> {
                             ),
                           ),
                       ],
-                      onChanged: (value) {},
+                      onChanged: (value) {
+                        setState(() {
+                          _selectedCategory = value!;
+                        });
+                      },
                     ),
                   ),
                 ],
