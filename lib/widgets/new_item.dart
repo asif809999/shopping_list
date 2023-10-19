@@ -48,8 +48,8 @@ class _NewItemState extends State<NewItem> {
           },
         ),
       );
-      print(response.body);
-      print(response.statusCode);
+      // print(response.body);
+      // print(response.statusCode);
 
       final Map<String, dynamic> resData = json.decode(response.body);
 
