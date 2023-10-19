@@ -28,13 +28,13 @@ class _GroceryListState extends State<GroceryList> {
         'shopping-list.json');
     final response = await http.get(url);
     final Map<String, dynamic> listData = json.decode(response.body);
-    final List<GroceryItem> _loadedIems = [];
+    final List<GroceryItem> loadedIems = [];
     for (final item in listData.entries) {
       final category = categories.entries
           .firstWhere(
               (catItem) => catItem.value.title == item.value['category'])
           .value;
-      _loadedIems.add(
+      loadedIems.add(
         GroceryItem(
             id: item.key,
             name: item.value['name'],
@@ -43,18 +43,22 @@ class _GroceryListState extends State<GroceryList> {
       );
     }
     setState(() {
-      _groceryItems = _loadedIems;
+      _groceryItems = loadedIems;
     });
   }
 
   void _addItem() async {
-    await Navigator.of(context).push(
+    final newItem = await Navigator.of(context).push(
       MaterialPageRoute(
         builder: (context) => const NewItem(),
       ),
     );
-
-    _loadItems();
+    if (newItem == null) {
+      return;
+    }
+    setState(() {
+      _groceryItems.add(newItem); // showing data without using http.get;
+    });
   }
 
   void _removeItem(GroceryItem item) {
